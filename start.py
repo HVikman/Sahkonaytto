@@ -6,6 +6,7 @@ import json
 import time
 import sh1106
 from program import main
+
 global settings
 try:
     if(stat("settings.json")):
@@ -17,6 +18,9 @@ except OSError:
     settings ={
     "ssid":"",
     "password":"",
+    "version":"",
+    "updateonboot":"",
+    "rounding":""
     }
     a_file = open("settings.json","w")
     json.dump(settings,a_file)
@@ -55,16 +59,16 @@ if settings["updateonboot"]==1:
         display.fill(0)
         display.text('Updating...', 0, 0, 1)
         display.show()
-        response = urequests.get("http://api.henkka.one/getupdate.php?file=main.py")
+        response = urequests.get("http://api.henkka.one/getupdate.php?file=program.py")
         print(version+" "+settings["version"])
         if len(response.text) <100:
             print("Failed to get update")
             return False
         else:
             x = response.text
-            response = urequests.get("http://api.henkka.one/getupdate.php?file=main.py")
+            response = urequests.get("http://api.henkka.one/getupdate.php?file=program.py")
             if response.text == x:
-                f = open("asd.py","w")
+                f = open("program.py","w")
                 f.write(response.text)
                 f.flush()
                 f.close
@@ -74,7 +78,17 @@ if settings["updateonboot"]==1:
                 json.dump(settings,a_file)
                 a_file.close()
                 print("Updated program")
-                machine.reset()
+                
+            
+                response = urequests.get("http://api.henkka.one/getupdate.php?file=webpages.py")            
+                if len(response.text) <100:
+                    print("Failed to get update")
+                    return False
+                else:
+                    f = open("webpages.py","w")
+                    f.write(response.text)
+                    f.flush()
+                    f.close
                 return True
             else:
                 return False

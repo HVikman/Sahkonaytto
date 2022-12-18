@@ -7,6 +7,8 @@ import json
 import time
 import sh1106
 import socket
+import webpages
+# -*- coding: cp1252 -*-
 
 i2c = I2C(0,scl=Pin(1), sda=Pin(0), freq=400000)
 display = sh1106.SH1106_I2C(128, 64, i2c, Pin(29), 0x3c,rotate=180)
@@ -19,6 +21,8 @@ led4 = Pin(12, Pin.OUT)
 led5 = Pin(13, Pin.OUT)
 led6 = Pin(14, Pin.OUT)
 led7 = Pin(15, Pin.OUT)
+green = Pin(22, Pin.OUT)
+red = Pin(21, Pin.OUT)
 
 raver = 0
 rounded =0
@@ -55,6 +59,12 @@ def getPrices():
         json.dump(settings,a_file)
         a_file.close()
         print("ota update scheduled")
+    if settings["limit"]>=round(float(price)):
+        red.value(0)
+        green.value(1)
+    else:
+        red.value(1)
+        green.value(0)
     return
 
 def leds(hinta):
@@ -178,70 +188,7 @@ def main():
             print(connection)
             return connection
 
-        def webpage():
-            html = f"""
-                <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:," />
-    <style>
-      input[type="text"],
-      select {{
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }}
-
-      button[type="submit"] {{
-        width: 100%;
-        background-color: #4caf50;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }}
-
-      button[type="submit"]:hover {{
-        background-color: #45a049;
-      }}
-
-      div {{
-        border-radius: 5px;
-        background-color: #f2f2f2;
-        padding: 20px;
-      }}
-    </style>
-  </head>
-  <body>
-    <center><h1>Wifi settings</h1></center>
-    <br /><br />
-    <form action="./" method="GET">
-      <center>
-        <div>
-          <label for="ssid">SSID</label>
-          <input type="text" name="ssid" id="ssid" value="" />
-        </div>
-        <div>
-          <label for="to">Password</label>
-          <input type="text" name="password" id="password" value="" />
-        </div>
-        <div>
-          <button type="submit">Save and restart</button>
-        </div>
-      </center>
-    </form>
-  </body>
-</html>
-
-                """
-            return str(html)
+        
         
         def parsestring(request):
             
@@ -276,7 +223,7 @@ def main():
                     pass
                 if request == '/lighton?':
                     print("ok")
-                html = webpage()
+                html = webpages.wlansettings()
                 client.send(html)
                 client.close()
                 
@@ -336,89 +283,20 @@ def main():
             print(connection)
             return connection
 
-        def webpage():
-            html = f"""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="icon" href="data:," />
-                <style>
-                input[type="text"],
-                select {{
-                width: 100%;
-                padding: 12px 20px;
-                margin: 8px 0;
-                display: inline-block;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                box-sizing: border-box;
-                }}
-
-                button[type="submit"] {{
-                width: 100%;
-                background-color: #4caf50;
-                color: white;
-                padding: 14px 20px;
-                margin: 8px 0;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                }}
-
-                button[type="submit"]:hover {{
-                background-color: #45a049;
-                }}
-
-                div {{
-                border-radius: 5px;
-                background-color: #f2f2f2;
-                padding: 20px;
-                }}
-                </style>
-                </head>
-                <body>
-                <center><h1>Wifi settings</h1></center>
-                <br /><br />
-                <form action="./" method="GET">
-                <center>
-                <div>
-                <label for="ssid">Wifi ssid</label>
-                <input type="text" name="ssid" id="ssid" value="" />
-                </div>
-                <div>
-                <label for="to">Wifi password</label>
-                <input type="text" name="password" id="password" value="" />
-                </div>
-                <div>
-                <button type="submit">Save and restart</button>
-                </div>
-                </center>
-                </form>
-                <button type="button"
-                onclick="document.getElementById('demo').innerHTML = Date()">
-                Click me to display Date and Time.</button>
-                </body>
-                </html>
-
-                """
-            return str(html)
+        
         
         def parsestring(request):
             
-            ssid = request.split("&")[0]
-            ssid = ssid.split("=")[1]
-            password = request.split("&")[1]
-            password = password.split("=")[1]
-            
-            settings["ssid"]=ssid
-            settings["password"]= password
-            print(settings)
-            a_file = open("settings.json","w")
-            json.dump(settings,a_file)
-            a_file.close()
-            machine.reset()
-            
+            setting = request.split("=")[0]
+            value = int(request.split("=")[1])
+            if setting=="updatenow":
+                print("Update things here")
+            else:
+                settings[setting]=value
+                print(settings)
+                a_file = open("settings.json","w")
+                json.dump(settings,a_file)
+                a_file.close()
             return
         
         def serve(connection):
@@ -437,7 +315,7 @@ def main():
                     pass
                 if request == '/lighton?':
                     print("ok")
-                html = webpage()
+                html = webpages.settings(settings['version'])
                 client.send(html)
                 client.close()
                 
