@@ -1,3 +1,4 @@
+#0.0.1¤
 from uos import stat
 import network   # handles connecting to WiFi
 import urequests # handles making and servicing network requests
@@ -14,6 +15,7 @@ led4 = Pin(12, Pin.OUT)
 led5 = Pin(13, Pin.OUT)
 led6 = Pin(14, Pin.OUT)
 led7 = Pin(15, Pin.OUT)
+global settings
 settingsmode=False
 button = Pin(17, Pin.IN, Pin.PULL_DOWN)
 holdsec = 0
@@ -34,16 +36,11 @@ while (button.value()==1):
         
 try:
     if(stat("settings.json")):
-        fileok=True
+        a_file = open("settings.json", "r")
+        settings = json.load(a_file)
+        a_file.close()
+        print(settings)
 except OSError:
-    fileok=False
-
-if(fileok==True):
-    a_file = open("settings.json", "r")
-    settings = json.load(a_file)
-    a_file.close()
-    print(settings)
-else:
     settings ={
     "ssid":"",
     "password":"",
@@ -85,9 +82,15 @@ if(settingsmode==False and wlansettings==False):
         time.sleep(1)
         attempts += 1
         if(attempts > 29):
-            wlansettings = open("settings.json","w")
-            wlansettings.close()
-            machine.reset()
+            settings ={
+            "ssid":"",
+            "password":"",
+            }
+            a_file = open("settings.json","w")
+            json.dump(settings,a_file)
+            a_file.close()
+
+
             
     rounded = 0
     raver = 0
@@ -112,6 +115,15 @@ if(settingsmode==False and wlansettings==False):
         display.text("Keskihinta: ", 0, 16, 1)
         display.text(str(raver)+"snt/kwh", 0, 24, 1)
         display.show()
+        version = info['version']
+        if(version == settings["version"]):
+            print("same version")
+        else:
+            settings["updateonboot"] = 1
+            a_file = open("settings.json","w")
+            json.dump(settings,a_file)
+            a_file.close()
+            print("ota update scheduled")
         return
 
     def leds(hinta):
