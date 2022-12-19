@@ -8,7 +8,7 @@ import time
 import sh1106
 import socket
 import webpages
-# -*- coding: cp1252 -*-
+
 
 i2c = I2C(0,scl=Pin(1), sda=Pin(0), freq=400000)
 display = sh1106.SH1106_I2C(128, 64, i2c, Pin(29), 0x3c,rotate=180)
