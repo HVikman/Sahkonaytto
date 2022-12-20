@@ -149,12 +149,13 @@ def settings(version):
                 >Valitse raja-arvo, jonka yli palaa punainen valo</label
               >
               <select name="limit" value="" id="limit">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
+                <option value="0">Päivän keskiarvo</option>
+                <option value="5">5snt</option>
+                <option value="10">10snt</option>
+                <option value="15">15snt</option>
+                <option value="20">20snt</option>
+                <option value="25">25snt</option>
+                <option value="30">30snt</option>
               </select>
             </div>
             <div>
