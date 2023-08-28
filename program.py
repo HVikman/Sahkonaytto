@@ -1,5 +1,4 @@
 from uos import stat
-import network   # handles connecting to WiFi
 import urequests # handles making and servicing network requests
 from machine import Pin, I2C
 import machine
@@ -23,31 +22,29 @@ green = Pin(22, Pin.OUT)
 red = Pin(21, Pin.OUT)
 raver = 0
 rounded =0
+
 def getPrices(settings):
     print("Querying backend:")
-    r = urequests.get("http://api.henkka.one/prices.json")
-    print(r.json())
-
-    info = r.json()
-    r.close()
-    global average
+    r = urequests.get("http://api.henkka.one/prices.json").json()
     global price
-    price = info['price']
-    average = info['average']
-    monthly = info['monthly']
+    global average
+    price = r['PriceWithTax']*100
+    r.close()
+    r=urequests.get('https://api.spot-hinta.fi/Today').json()
+    total = sum(item['PriceWithTax']*100 for item in r)
+    average = round((total / len(r)),1)
+    r.close()
     print(settings['rounding'])
     if settings['rounding']==1:
         average = round(float(average))
         price = round(float(price))
-        monthly= round(float(monthly))
     display.fill(0)
     display.text("Hinta on nyt: ", 0, 0, 1)
     display.text(str(price)+"snt/kwh", 0, 9, 1)
     display.text("Paivan ka:", 0, 24, 1)
     display.text(str(average)+"snt/kwh", 0, 33, 1)
-    display.text("Kuukauden ka:", 0, 48, 1)
-    display.text(str(monthly)+"snt/kwh", 0, 57, 1)
     display.show()
+
     if(info['version'] == settings["version"]):
         print("same version")
     else:
@@ -85,12 +82,12 @@ def main(button,settings):
            
     getPrices(settings)
 
-    nextTime = time.time()+300
+    nextTime = time.time()+600
     print(nextTime)
     while True:
         if (nextTime < time.time()):
             getPrices(settings)
-            nextTime = time.time()+300
+            nextTime = time.time()+600
         else:
             leds(round(float(price)))
             buttonpressed = button.value()
@@ -116,7 +113,7 @@ def parsestring(request, settings):
         value=request.split("=")[1]
         
     if setting=="updatenow":
-        print("Update things here")
+        print("Update things will be here")
         
     elif setting=="ssid":
         ssid = request.split("&")[0]

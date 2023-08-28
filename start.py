@@ -83,14 +83,14 @@ if settings["updateonboot"]==1:
         display.fill(0)
         display.text('Updating...', 0, 0, 1)
         display.show()
-        response = urequests.get("http://api.henkka.one/getupdate.php?file=program.py")
+        response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/program.py")
         print(version+" "+settings["version"])
         if len(response.text) <100:
             print("Failed to get update")
             return False
         else:
             x = response.text
-            response = urequests.get("http://api.henkka.one/getupdate.php?file=program.py")
+            response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/program.py")
             if response.text == x:
                 f = open("program.py","w")
                 f.write(response.text)
@@ -104,7 +104,7 @@ if settings["updateonboot"]==1:
                 print("Updated program")
                 
             
-                response = urequests.get("http://api.henkka.one/getupdate.php?file=webpages.py")            
+                response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/webpages.py")            
                 if len(response.text) <100:
                     print("Failed to get update")
                     return False
