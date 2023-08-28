@@ -74,8 +74,8 @@ ip = connection()
 
 if settings["updateonboot"]==1:
     connection() 
-    r = urequests.get("http://api.henkka.one/prices.json")
-    info = r.json()
+    r= urequests.get('https://raw.githubusercontent.com/HVikman/Sahkonaytto/main/version.json')
+    info = r.json
     version = info['version']
 
     def getUpdate():
@@ -83,14 +83,14 @@ if settings["updateonboot"]==1:
         display.fill(0)
         display.text('Updating...', 0, 0, 1)
         display.show()
-        response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/program.py")
+        response = urequests.get("https://raw.githubusercontent.com/HVikman/Sahkonaytto/main/program.py")
         print(version+" "+settings["version"])
         if len(response.text) <100:
             print("Failed to get update")
             return False
         else:
             x = response.text
-            response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/program.py")
+            response = urequests.get("https://raw.githubusercontent.com/HVikman/Sahkonaytto/main/program.py")
             if response.text == x:
                 f = open("program.py","w")
                 f.write(response.text)
@@ -104,7 +104,7 @@ if settings["updateonboot"]==1:
                 print("Updated program")
                 
             
-                response = urequests.get("https://github.com/HVikman/Sahkonaytto/blob/main/webpages.py")            
+                response = urequests.get("https://raw.githubusercontent.com/HVikman/Sahkonaytto/main/webpages.py")            
                 if len(response.text) <100:
                     print("Failed to get update")
                     return False
@@ -142,3 +142,4 @@ else:
         program.main(button,settings)
     else:
         program.wlansettings(ip,settings)
+

@@ -25,15 +25,17 @@ rounded =0
 
 def getPrices(settings):
     print("Querying backend:")
-    r = urequests.get("http://api.henkka.one/prices.json").json()
+    res = urequests.get("https://api.spot-hinta.fi/JustNow")
+    r = res.json()
     global price
     global average
     price = r['PriceWithTax']*100
-    r.close()
-    r=urequests.get('https://api.spot-hinta.fi/Today').json()
+    res.close()
+    res=urequests.get('https://api.spot-hinta.fi/Today')
+    r = res.json()
     total = sum(item['PriceWithTax']*100 for item in r)
     average = round((total / len(r)),1)
-    r.close()
+    res.close()
     print(settings['rounding'])
     if settings['rounding']==1:
         average = round(float(average))
@@ -44,6 +46,8 @@ def getPrices(settings):
     display.text("Paivan ka:", 0, 24, 1)
     display.text(str(average)+"snt/kwh", 0, 33, 1)
     display.show()
+
+    info= urequests.get('https://raw.githubusercontent.com/HVikman/Sahkonaytto/main/version.json').json()
 
     if(info['version'] == settings["version"]):
         print("same version")
@@ -153,7 +157,7 @@ def serve(connection, html, settings):
 def wlansettings(ip,settings):
     html = webpages.wlansettings()
     try:
-        ip = connect()
+
         
         display.sleep(False)
         display.fill(0)
